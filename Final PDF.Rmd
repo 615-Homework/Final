@@ -1,0 +1,131 @@
+---
+title: "Final Report"
+author: "Chloe Singer"
+date: "2024-12-20"
+output:
+  pdf_document:
+    keep_tex: true
+  word_document: default
+always_allow_html: true
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(leaflet)
+library(WDI)
+library(forecast)  # Ensure forecast package is loaded for auto.arima
+library(dplyr)
+library(knitr)  # For tables in Markdown
+```
+
+## Introduction
+Fiji, an archipelago of over 330 islands in the South Pacific, holds strategic importance due to its geographic location, cultural richness, and economic potential. This report explores Fiji's economic trends, population growth, visitor statistics, and a comprehensive SWOT analysis. Special attention is paid to Fiji's vulnerabilities and opportunities, particularly in the context of climate change and global economic shifts.
+
+## General Description
+Fiji is located in the Melanesian region of the South Pacific, northeast of New Zealand and west of Tonga. Its total land area spans approximately 18,300 square kilometers, with Viti Levu and Vanua Levu being the largest islands. Suva, the capital, serves as the political and economic center of Fiji.
+
+```{r map}
+leaflet() %>%
+  addTiles() %>%
+  setView(lng = 178.0650, lat = -17.7134, zoom = 6) %>%
+  addMarkers(lng = 178.0650, lat = -17.7134, popup = "Fiji")
+```
+
+### Key Facts About Fiji:
+- **Government**: Fiji operates as a parliamentary democracy, with the President as the head of state and the Prime Minister leading the government. Fiji's constitution emphasizes inclusivity and stability.
+- **Economy**: Fiji's economy heavily depends on tourism, agriculture (primarily sugarcane), and remittances. Its GDP is estimated at $5 billion, with an annual growth rate of around 3%.
+- **Demographics**: The population of 900,000 is ethnically diverse, comprising indigenous Fijians (iTaukei), Indo-Fijians, and other minority groups.
+- **Natural Environment**: Renowned for its coral reefs, tropical forests, and rich biodiversity, Fiji faces significant environmental challenges, including rising sea levels and extreme weather events.
+- **History**: A former British colony, Fiji gained independence in 1970. It has since transitioned into a stable democratic state with a focus on economic modernization.
+
+## Key Economic Trends and Indicators
+
+### GDP Trends
+
+Fiji's GDP reflects steady growth, driven by tourism and exports. The government has prioritized economic diversification to mitigate reliance on external factors.
+
+```{r gdp-trends}
+fiji_gdp <- WDI(country = "FJ", indicator = "NY.GDP.MKTP.CD", start = 2000, end = 2023)
+gdp_ts <- ts(fiji_gdp$NY.GDP.MKTP.CD, start = 2000, frequency = 1)
+plot(gdp_ts, main = "Fiji GDP Over Time", ylab = "GDP (Current US$)", xlab = "Year")
+```
+
+### Population Growth
+
+Fiji's population growth aligns with global trends, characterized by urban migration and improvements in healthcare.
+
+```{r population-trends}
+fiji_population <- WDI(country = "FJ", indicator = "SP.POP.TOTL", start = 2000, end = 2023)
+pop_ts <- ts(fiji_population$SP.POP.TOTL, start = 2000, frequency = 1)
+plot(pop_ts, main = "Fiji Population Growth", ylab = "Population", xlab = "Year")
+```
+
+### Per Capita Income
+
+Per capita income in Fiji has seen steady improvements, reflecting economic growth and reduced poverty levels.
+
+```{r pci-trends}
+fiji_pci <- WDI(country = "FJ", indicator = "NY.GDP.PCAP.CD", start = 2000, end = 2023)
+pci_ts <- ts(fiji_pci$NY.GDP.PCAP.CD, start = 2000, frequency = 1)
+plot(pci_ts, main = "Fiji Per Capita Income", ylab = "Income (Current US$)", xlab = "Year")
+```
+
+## GDP Forecast
+Using ARIMA modeling, we project Fiji's GDP for the next five years, offering insights into expected economic growth.
+
+```{r gdp-forecast}
+gdp_arima <- auto.arima(gdp_ts)
+gdp_forecast <- forecast(gdp_arima, h = 5)
+plot(gdp_forecast, main = "Fiji GDP Forecast", ylab = "GDP (Current US$)", xlab = "Year")
+```
+
+## Visitor Statistics
+Tourism contributes significantly to Fiji's economy, with over 800,000 visitors annually. Visitor trends have shown resilience despite global challenges like COVID-19.
+
+```{r visitor-trends}
+fiji_visitors <- WDI(country = "FJ", indicator = "ST.INT.ARVL", start = 2000, end = 2023)
+visitor_ts <- ts(fiji_visitors$ST.INT.ARVL, start = 2000, frequency = 1)
+plot(visitor_ts, main = "Fiji Visitor Arrivals", ylab = "Number of Visitors", xlab = "Year")
+```
+
+## Comparison with Other Island States
+Compared to other Pacific nations such as Tonga, Samoa, and Vanuatu, Fiji benefits from better infrastructure, higher GDP, and a diversified economy.
+
+```{r comparison}
+pacific_gdp <- WDI(country = c("FJ", "TO", "VU", "WS"), indicator = "NY.GDP.MKTP.CD", start = 2020, end = 2023) %>%
+  rename(GDP = NY.GDP.MKTP.CD) %>%
+  group_by(country) %>%
+  summarize(GDP = mean(GDP, na.rm = TRUE))
+
+ggplot(pacific_gdp, aes(x = country, y = GDP, fill = country)) +
+  geom_bar(stat = "identity") +
+  labs(title = "GDP Comparison of Pacific Island States", y = "GDP (Current US$)", x = "Country")
+```
+
+## SWOT Analysis
+
+- **Strengths**:
+  - Global tourism destination with strong brand appeal.
+  - Rich natural resources, including forests, reefs, and fisheries.
+  - Politically stable with consistent growth policies.
+
+- **Weaknesses**:
+  - High dependence on tourism and sugar exports.
+  - Limited access to international markets.
+  - Vulnerability to natural disasters and climate change.
+
+- **Opportunities**:
+  - Expansion of renewable energy initiatives.
+  - Development of high-end eco-tourism markets.
+  - Leveraging regional trade agreements to boost exports.
+
+- **Threats**:
+  - Rising sea levels threatening coastal infrastructure.
+  - Economic shocks from global downturns.
+  - Increasing frequency of severe weather events.
+
+## Sources
+- World Bank Development Indicators (WDI).
+- Fiji Bureau of Statistics.
+- Reports from the International Monetary Fund (IMF).
+- Tourism Fiji.

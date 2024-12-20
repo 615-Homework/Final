@@ -1,0 +1,125 @@
+---
+title: "Fiji Final Presentation"
+author: "Chloe Singer"
+date: "2024-12-20"
+output: 
+  powerpoint_presentation: default
+always_allow_html: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(leaflet)
+library(WDI)
+library(forecast)  # Ensure forecast package is loaded for auto.arima
+library(dplyr)
+library(knitr)  # For tables in Markdown
+
+fiji_gdp <- WDI(country = "FJ", indicator = "NY.GDP.MKTP.CD", start = 2000, end = 2023)
+gdp_ts <- ts(fiji_gdp$NY.GDP.MKTP.CD, start = 2000, frequency = 1)
+fiji_population <- WDI(country = "FJ", indicator = "SP.POP.TOTL", start = 2000, end = 2023)
+fiji_visitors <- WDI(country = "FJ", indicator = "ST.INT.ARVL", start = 2000, end = 2023)
+visitor_ts <- ts(fiji_visitors$ST.INT.ARVL, start = 2000, frequency = 1)
+```
+
+# Slide 1: Introduction
+Fiji, an archipelago of over 330 islands in the South Pacific, is a cultural and economic hub of the region. Known for its stunning natural beauty, Fiji also plays a pivotal role in regional trade and tourism. This presentation delves into Fiji's economic indicators, population trends, visitor statistics, and competitive position among Pacific Island states.
+
+---
+
+# Slide 2: Key Facts About Fiji
+- **Location**: Fiji is situated in the South Pacific, northeast of New Zealand.
+- **Population**: Approximately 900,000, characterized by a diverse mix of indigenous Fijians, Indo-Fijians, and other ethnic groups.
+- **Government**: Parliamentary democracy with a strong emphasis on inclusivity.
+- **Economy**:
+  - Tourism accounts for over 40% of GDP.
+  - Agriculture (primarily sugarcane) and remittances play key roles.
+  - Emerging focus on renewable energy and sustainable tourism.
+
+```{r map, echo=FALSE}
+leaflet() %>%
+  addTiles() %>%
+  setView(lng = 178.0650, lat = -17.7134, zoom = 6) %>%
+  addMarkers(lng = 178.0650, lat = -17.7134, popup = "Fiji")
+```
+
+---
+
+# Slide 3: Economic Trends
+
+## GDP Trends
+Fiji's GDP has shown steady growth over the years, with significant contributions from tourism and exports. Efforts to diversify the economy are ongoing.
+
+```{r gdp-trends, echo=FALSE}
+plot(gdp_ts, main = "Fiji GDP Over Time", ylab = "GDP (Current US$)", xlab = "Year")
+```
+
+## Population Trends
+Fiji's population growth reflects increasing urbanization and improvements in healthcare. The government aims to balance urban expansion with environmental sustainability.
+
+```{r population-trends, echo=FALSE}
+pop_ts <- ts(fiji_population$SP.POP.TOTL, start = 2000, frequency = 1)
+plot(pop_ts, main = "Fiji Population Growth", ylab = "Population", xlab = "Year")
+```
+
+---
+
+# Slide 4: Visitor Statistics
+Tourism remains the backbone of Fiji's economy. Visitor numbers peaked pre-pandemic and are recovering rapidly as global travel resumes.
+
+- **Key Markets**: Australia, New Zealand, and the United States.
+- **Trends**: Growing interest in eco-tourism and cultural tourism.
+
+```{r visitor-trends, echo=FALSE}
+plot(visitor_ts, main = "Visitor Trends for Fiji", ylab = "Number of Visitors", xlab = "Year")
+```
+
+---
+
+# Slide 5: Comparison with Other Island States
+
+Fiji outperforms many Pacific Island states in GDP, infrastructure, and tourism development. However, challenges such as climate vulnerability and reliance on external markets persist.
+
+```{r comparison, echo=FALSE}
+pacific_gdp <- WDI(country = c("FJ", "TO", "VU", "WS"), indicator = "NY.GDP.MKTP.CD", start = 2020, end = 2023) %>%
+  rename(GDP = NY.GDP.MKTP.CD) %>%
+  group_by(country) %>%
+  summarize(GDP = mean(GDP, na.rm = TRUE))
+
+ggplot(pacific_gdp, aes(x = country, y = GDP, fill = country)) +
+  geom_bar(stat = "identity") +
+  labs(title = "GDP Comparison of Pacific Island States", y = "GDP (Current US$)", x = "Country")
+```
+
+---
+
+# Slide 6: SWOT Analysis
+
+- **Strengths**:
+  - World-class tourism infrastructure.
+  - Abundant natural resources.
+  - Strong cultural identity and heritage.
+- **Weaknesses**:
+  - Overdependence on tourism.
+  - Limited diversification in exports.
+- **Opportunities**:
+  - Expansion into renewable energy.
+  - Growth in eco-tourism and high-end hospitality sectors.
+- **Threats**:
+  - Climate change impacts, particularly rising sea levels.
+  - Global economic fluctuations affecting key industries.
+
+---
+
+# Slide 7: Conclusion
+Fiji exemplifies resilience and adaptability in a rapidly changing global environment. With strategic investments in sustainable industries and infrastructure, Fiji can secure long-term growth while preserving its natural beauty and cultural legacy.
+
+---
+
+# References
+- **World Bank Development Indicators (WDI)**: Comprehensive economic and population data.
+- **Fiji Bureau of Statistics**: Visitor trends and demographic insights.
+- **Tourism Fiji Reports**: Strategic direction and performance of the tourism sector.
+
+```
